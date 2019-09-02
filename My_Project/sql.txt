@@ -1,0 +1,64 @@
+ "CREATE TABLE shopktb " + "(sid INTEGER not NULL, " + " name VARCHAR(30), " + " comacc INTEGER, " + " bankacc INTEGER, " + " PRIMARY KEY ( sid ))"; ;
+
+ "CREATE TABLE comtb " + "(comacc INTEGER not NULL, " + " com1 VARCHAR(30), " + " com2 VARCHAR(30), " + " com3 VARCHAR(30), " + " PRIMARY KEY ( comacc ))"; ;
+  
+ "CREATE TABLE banktb " + "(bankacc INTEGER not NULL, " + " action VARCHAR(30), " + " amount INTEGER, " + " balance INTEGER, " + " PRIMARY KEY ( bankacc ))"; ;
+
+ "CREATE TABLE salestb " + "(sid INTEGER not NULL, " + " txnid INTEGER, " + " comname VARCHAR(30), " + "  quant INTEGER, " +" action VARCHAR(10), " +  "  price INTEGER, "+" Taxamt INTEGER)"; ;
+
+
+try
+		{
+			con=ConnectionC.sql();
+			System.out.println("Conn");
+			Statement  st =con.createStatement();
+			
+		}
+		
+   		
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+if(price<=bal)
+			{
+			sqlst="";
+			sqlst ="SELECT "+comtdy+ " from comtb WHERE comacc="+comacc;
+		     rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     quanc  = rs.getInt(comtdy);
+		    }
+			
+			
+			sqlst="";
+			sqlst = "UPDATE comtb " +"SET "+comtdy+" = "+ (quanc+qua)+" WHERE comacc="+comacc;
+	        st.executeUpdate(sqlst);
+	        sqlst="";
+			sqlst = "INSERT INTO salestb VALUES('"+sid+"','"+comtdy+"','"+qua+"','Buy','"+price+"','"+((price*10)/100)+"')";
+	        st.executeUpdate(sqlst);
+	        
+	        sqlst = "UPDATE banktb SET balance = "+ (bal-(price*10)/100)+" WHERE bankacc="+bankacc;
+	        st.executeUpdate(sqlst);
+	        
+	        System.out.println("Commodity "+comtdy+"of quantity "+qua+" bought succesfully by "+sid);
+			}
+			else
+			{
+				
+				System.out.println("You dont have enough Balance");
+			}
+			

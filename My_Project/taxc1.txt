@@ -1,0 +1,344 @@
+package com.tax_c.sample;
+
+import java.sql.*;
+import java.util.Scanner;
+
+import com.tax_c.sample.ConnectionC;
+
+public class Welcome {
+
+	public static void main(String[] args) 
+	
+	{
+   Connection con= null;
+		
+   int ch,sid=0,quanc=0,qua=0,comacc=0,price=0,bankacc=0,bal=0;
+   String comtdy,sqlst;
+   Scanner sc=new Scanner(System.in);
+   
+   	while(true)
+   	{
+   	System.out.println("\n"+"1.Shopkeeper buys\n2.Shopkeeper sells\n3.Show commodity_acc\n4.Bank_acc of shopkey\n5.Sales of shopkey\n6.exit");
+   	
+    ch=sc.nextInt();
+   	switch(ch)
+   	{
+   	case 1:
+   		try
+   		{
+   			System.out.println("Enter Shopkeeper_id:");
+   			sid=sc.nextInt();
+   			System.out.println("Enter Commodity type:");
+   			comtdy=sc.next();
+   			System.out.println("Enter Quantity:");
+   			qua=sc.nextInt();
+   			
+   			price=qua*10;
+   			System.out.println("Calculated Price:"+price);
+   			con=ConnectionC.sql();
+			System.out.println("DB Connected");
+			Statement  st =con.createStatement();
+			sqlst ="SELECT comacc,bankacc from shopktb WHERE sid="+sid;
+			ResultSet rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     comacc  = rs.getInt("comacc");
+		     bankacc=rs.getInt("bankacc");
+		    }
+			//System.out.println(comacc+bankacc);
+			
+   		
+			
+			sqlst ="SELECT balance from banktb WHERE bankacc="+bankacc;
+			 rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     bal = rs.getInt("balance");
+		    }
+			if(price<=bal)
+			{
+			sqlst="";
+			sqlst ="SELECT "+comtdy+ " from comtb WHERE comacc="+comacc;
+		     rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     quanc  = rs.getInt(comtdy);
+		    }
+			
+			
+			sqlst="";
+			sqlst = "UPDATE comtb " +"SET "+comtdy+" = "+ (quanc+qua)+" WHERE comacc="+comacc;
+	        st.executeUpdate(sqlst);
+	        sqlst="";
+			sqlst = "INSERT INTO salestb VALUES('"+sid+"','"+comtdy+"','"+qua+"','Buy','"+price+"','"+((price*10)/100)+"')";
+	        st.executeUpdate(sqlst);
+	        
+	        sqlst = "UPDATE banktb SET balance = "+ (bal-(price*90)/100)+" WHERE bankacc="+bankacc;
+	        st.executeUpdate(sqlst);
+	        
+	        System.out.println("Commodity "+comtdy+" of quantity "+qua+" has been bought succesfully by shopkeeper "+sid);
+			}
+			else
+			{
+				
+				System.out.println("You dont have enough Balance");
+			}
+			
+   		}
+   
+   		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+   		
+   		
+   		finally
+   		{
+   		
+   		try {
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+   			
+   		}
+   	break;
+   
+   	case 2:
+   		try
+   		{
+   			System.out.println("Enter Shopkeeper_id:");
+   			sid=sc.nextInt();
+   			System.out.println("Enter Commodity type:");
+   			comtdy=sc.next();
+   			System.out.println("Enter Quantity:");
+   			qua=sc.nextInt();
+   			
+   			price=qua*10;
+   			System.out.println("Calculated Price:"+price);
+   			con=ConnectionC.sql();
+			System.out.println("DB Connected");
+			Statement  st =con.createStatement();
+			sqlst ="SELECT comacc from shopktb WHERE sid="+sid;
+			ResultSet rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     comacc  = rs.getInt("comacc");
+		    }
+			sqlst="";
+			sqlst ="SELECT "+comtdy+ " from comtb WHERE comacc="+comacc;
+		     rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     quanc  = rs.getInt(comtdy);
+		    }
+			sqlst="";
+			if(qua<=quanc)
+			{
+			sqlst = "UPDATE comtb " +"SET "+comtdy+" = "+ (quanc-qua)+" WHERE comacc="+comacc;
+	        st.executeUpdate(sqlst);
+	        sqlst="";
+			sqlst = "INSERT INTO salestb VALUES('"+sid+"','"+comtdy+"','"+qua+"','Sell','"+price+"','"+((price*10)/100)+"')";
+	        st.executeUpdate(sqlst);
+	        sqlst="";
+	        sqlst ="SELECT bankacc from shopktb WHERE sid="+sid;
+			 rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     bankacc = rs.getInt("bankacc");
+		    }
+			sqlst="";
+			 sqlst ="SELECT balance from banktb WHERE bankacc="+bankacc;
+			 rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     bal = rs.getInt("balance");
+		    }
+			sqlst = "UPDATE banktb SET balance = "+ (bal+(price*90)/100)+" WHERE bankacc="+bankacc;
+	        st.executeUpdate(sqlst);
+	       
+	        
+	        
+	        
+	        System.out.println("Commodity "+comtdy+" of quantity "+qua+" has been sold succesfully by shopkeeper"+sid);
+			}
+			else
+			{
+				
+				System.out.println("Commodity out of stock !");
+			}
+	        
+   		}
+   	
+   		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+   		
+   		
+   		finally
+   		{
+   		
+   		try {
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+   			
+   		}
+   	break;
+   	case 3:
+   		try
+   		{
+   			System.out.println("Enter Shopkeeper_id:");
+   			sid=sc.nextInt();
+   			
+   			con=ConnectionC.sql();
+			System.out.println("DB Connected");
+			Statement  st =con.createStatement();
+			sqlst ="SELECT comacc from shopktb WHERE sid="+sid;
+			ResultSet rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     comacc  = rs.getInt("comacc");
+		    }
+			sqlst ="SELECT * from comtb WHERE comacc="+comacc;
+			 rs = st.executeQuery(sqlst);
+			 System.out.println("Commacc"+"\t"+"com1"+"\t"+"com2"+"\t"+"com3");
+			while(rs.next())
+			{
+		      
+		       System.out.println(rs.getInt("comacc")+"\t"+rs.getInt("com1")+"\t"+rs.getInt("com2")+"\t"+rs.getInt("com3"));
+		    }
+			
+   			
+   		}
+   		
+   		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+   		
+   		
+   		finally
+   		{
+   		
+   		try {
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+   			
+   		}
+   		
+   		break;
+   		
+   	case 4:
+   		try
+   		{
+   			System.out.println("Enter Shopkeeper_id:");
+   			sid=sc.nextInt();
+   			
+   			con=ConnectionC.sql();
+			System.out.println("DB Connected");
+			Statement  st =con.createStatement();
+			sqlst ="SELECT bankacc from shopktb WHERE sid="+sid;
+			ResultSet rs = st.executeQuery(sqlst);
+			while(rs.next())
+			{
+		     bankacc  = rs.getInt("bankacc");
+		    }
+			sqlst ="SELECT * from banktb WHERE bankacc="+bankacc;
+			 rs = st.executeQuery(sqlst);
+			 System.out.println("Bank acc"+"\t"+"Balance");
+			while(rs.next())
+			{
+		      
+		       System.out.println(rs.getInt("bankacc")+"\t\t"+rs.getInt("balance"));
+		    }
+			
+   			
+   		}
+   		
+   		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+   		
+   		
+   		finally
+   		{
+   		
+   		try {
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+   			
+   		}
+   		
+   		break;
+   		
+   	case 5:
+   		
+   		try
+   		{
+   			System.out.println("Enter Shopkeeper_id:");
+   			sid=sc.nextInt();
+   			
+   			con=ConnectionC.sql();
+			System.out.println("DB Connected");
+			Statement  st =con.createStatement();
+			
+			sqlst ="SELECT * from salestb WHERE sid="+sid;
+			ResultSet rs = st.executeQuery(sqlst);
+			 System.out.println("Shopkeyid"+"\t"+"ComName"+"\t"+"Quantity"+"\t"+"Action"+"\t"+"Price"+"\t"+"TaxCollected");
+			while(rs.next())
+			{
+		      
+		       System.out.println(rs.getInt("sid")+"\t\t"+rs.getString("comname")+"\t\t"+rs.getInt("quant")+"\t\t"+rs.getString("act")+"\t\t"+rs.getInt("price")+"\t\t"+rs.getInt("tax_amount"));
+		    }
+			
+   			
+   		}
+   		
+   		catch(SQLException e)
+		{
+			e.printStackTrace();
+		} 
+   		
+   		
+   		finally
+   		{
+   		
+   		try {
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+   			
+   		}
+   		
+   		
+   		
+   		break;
+   		
+   	case 6:
+   		System.exit(0);
+   
+   	}
+   	
+	
+		
+		
+		
+	
+   	}
+	}
+
+}
